@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- flow configuration -->
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	 
+	 	<input name="id"/>
+	 	
+	 	<decision-state id="addOrEdit">
+	 		<if test="id == null" then="add" else="edit"/>
+	 	</decision-state>
+	 	
+	 	<action-state id="add">
+	 		<evaluate expression="userBean" result="flowScope.user"/>
+	 		<transition to="userForm"/>
+	 	</action-state>
+	 	
+	 	<action-state id="edit">
+	 		<evaluate expression="userService.getUserBy(id)" result="flowScope.user"/>
+	 		<transition to="userForm"/>
+	 	</action-state>
+	 	
+	    <view-state id="userForm" model="user" view="userPage">
+	        <transition on="save" to="usersView">
+	        	<evaluate expression="userService.update(user)"/>
+	    		<evaluate expression="userService.getAllUser()" result="flowScope.users"/>
+	        </transition>
+	    	<transition on="viewUser" to="usersView">
+	    		<evaluate expression="userService.getAllUser()" result="flowScope.users"/>
+	    	</transition>
+	    </view-state>
+	    
+	    <view-state id="usersView" view="viewPage">
+	    	<transition on="deleteUser" to="usersView">
+	    		<evaluate expression="userService.remove(requestParameters.id)"/>
+	    		<evaluate expression="userService.getAllUser()" result="flowScope.users"/>
+	    	</transition>
+	    	<transition on="viewUser" to="usersView">
+	    		<evaluate expression="userService.getAllUser()" result="flowScope.users"/>
+	    	</transition>
+	    </view-state>
+	</flow>
